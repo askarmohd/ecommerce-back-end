@@ -18,7 +18,7 @@ exports.signup = (req, res) => {
       email,
       hash_password,
       username: shortid.generate(),
-      role:'admin'
+      role: "admin",
     });
 
     _user.save((error, data) => {
@@ -49,13 +49,14 @@ exports.signin = (req, res) => {
           { expiresIn: "1d" }
         );
         const { _id, firstName, lastName, email, role, fullName } = user;
-        res.status(200).json({
+        res.cookie("token", token, { expiresIn: "1d" });
+        res.status(200).json({ 
           token,
           user: { _id, firstName, lastName, email, role, fullName },
         });
       } else {
         return res.status(400).json({
-          message: "Something went wrong",
+          message: "Something went wrong check it once more",
         });
       }
     } else {
@@ -64,9 +65,9 @@ exports.signin = (req, res) => {
   });
 };
 
-exports.requireSignin = (req,res,next)=>{
-  const token = req.headers.authorization.split(" ")[1];
-  const user = jwt.verify(token,process.env.JWT_SECRET);
-  req.user=user;
-  next();
+exports.signout = (req,res) =>{
+  res.clearCookie('token');
+  res.status(200).json({
+    message:'Signout Successfully',
+  })
 }
